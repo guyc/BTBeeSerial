@@ -1,56 +1,83 @@
 
 #include "BTBeeSerial.h"
  
-BTBeeSerial::BTBeeSerial(uint8_t RxPin, uint8_t TxPin)
+BTBeeSerial::BTBeeSerial(uint8_t RxPin, uint8_t TxPin) : SoftwareSerial(RxPin, TxPin)
 {
   state = STATE_INITIALIZING;
 }
 
-void BTBeeSerial::setWorkingMode(WorkingMode_t mode)
+void BTBeeSerial::btWorkingMode(WorkingMode_t mode)
 {
+  btCommand("STWMOD", mode);
 }
 
-void BTBeeSerial::setBaudRate(BaudRate_t baudRate)
+void BTBeeSerial::btBaudRate(BaudRate_t baudRate)
 {
+  btCommand("STBD", baudRate);
 }
 
-void BTBeeSerial::setAutoConnect(Permit_t permitted)
+void BTBeeSerial::btAutoConnect(Permit_t permitted)
 {
+  btCommand("STAUTO", permitted);
 }
 
-void BTBeeSerial::setConnect(Permit_t permitted)
+void BTBeeSerial::btConnect(Permit_t permitted)
 {
+  btCommand("STOAUT", permitted);
 }
 
-void BTBeeSerial::setDeviceName(const char[])
+void BTBeeSerial::btDeviceName(const char name[])
 {
+  btCommand("STNA", name);
 }
 
-void BTBeeSerial::setPinCode(const char[])
+void BTBeeSerial::btPinCode(const char code[])
 {
+  btCommand("STPIN", code);
 }
 
-void BTBeeSerial::deletePinCode(void)
+void BTBeeSerial::btDeletePinCode(void)
 {
+  btCommand("DLPIN");
 }
 
-void BTBeeSerial::setLossReconnect(Permit_t permitted)
+void BTBeeSerial::btLossReconnect(Permit_t permitted)
 {
+  btCommand("LOSSRECONN", permitted);
 } 
 
-void BTBeeSerial::setInquire(Permit_t permitted)
+void BTBeeSerial::btInquire(Permit_t permitted)
 {
-}
-    
-
-// SoftSerial emulation
-void print(char)
-{
+  btCommand("INQ", permitted);
 }
 
-void print(const char[])
+void BTBeeSerial::btReadLocalAddress()
 {
+  btCommand("RTADDR");
 }
 
+void BTBeeSerial::btCommand(const char cmd[], unsigned int value)
+{
+  print("\r\n+");
+  print(cmd);
+  print("=");
+  print(value);
+  print("\r\n");  
+}
 
+void BTBeeSerial::btCommand(const char cmd[])
+{
+  print("\r\n+");
+  print(cmd);
+  print("\r\n");  
+}
+
+void BTBeeSerial::btCommand(const char cmd[], const char value[])
+{
+  print("\r\n+");
+  print(cmd);
+  print("=");
+  print(value);
+  print("\r\n");  
+}
  

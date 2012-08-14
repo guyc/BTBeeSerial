@@ -2,8 +2,9 @@
 #define BTBeeSerial_h
 
 #include <inttypes.h>
+#include <SoftwareSerial.h>
 
-class BTBeeSerial
+class BTBeeSerial : public SoftwareSerial
 {
   public:
     typedef enum {
@@ -38,23 +39,26 @@ class BTBeeSerial
 
     // Current State:
     State_t state;
-    
     BTBeeSerial(uint8_t RxPin, uint8_t TxPin);
 
     // BlueTooth control
-    void setWorkingMode(WorkingMode_t mode);   // client==slave, server==master
-    void setBaudRate(BaudRate_t baudRate);     // baud rate to BT module
-    void setAutoConnect(Permit_t permitted);   // auto-reconnect last paired device on power
-    void setConnect(Permit_t permitted);       // allow paired device to connect to me
-    void setDeviceName(const char[]);          // 
-    void setPinCode(const char[]);             // must be 4 digit string
-    void deletePinCode(void);
-    void setLossReconnect(Permit_t permitted); // reconnect when master device is out of range   
-    void setInquire(Permit_t permitted);
-
-    // SoftSerial emulation
-    void print(char);
-    void print(const char[]);
+    
+    // TODO: these should reeturn status codes, not void
+    
+    void btWorkingMode(WorkingMode_t mode);   // client==slave, server==master
+    void btBaudRate(BaudRate_t baudRate);     // baud rate to BT module
+    void btAutoConnect(Permit_t permitted);   // auto-reconnect last paired device on power
+    void btConnect(Permit_t permitted);       // allow paired device to connect to me
+    void btDeviceName(const char name[]);          // 
+    void btPinCode(const char code[]);             // must be 4 digit string
+    void btDeletePinCode(void);
+    void btLossReconnect(Permit_t permitted); // reconnect when master device is out of range   
+    void btInquire(Permit_t permitted);
+    void btReadLocalAddress(void);
+    
+    void btCommand(const char cmd[], unsigned int value);
+    void btCommand(const char cmd[], const char value[]);
+    void btCommand(const char cmd[]);
 };
 
 #endif
