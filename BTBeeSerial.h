@@ -3,6 +3,14 @@
 
 #include <inttypes.h>
 #include <SoftwareSerial.h>
+#include <Arduino.h>
+
+// reference documents:
+// http://www.seeedstudio.com/wiki/Bluetooth_Bee
+// http://elmicro.com/files/seeedstudio/btbee-datasheet.pdf
+// XBee Adaptor
+// http://www.adafruit.com/products/127
+// http://www.ladyada.net/images/xbee/xbee11sch.png
 
 class BTBeeSerial : public SoftwareSerial
 {
@@ -36,29 +44,37 @@ class BTBeeSerial : public SoftwareSerial
       STATE_CONNECTING   = 3,
       STATE_CONNECTED    = 4
     } State_t;
+    
+    typedef enum {
+      STATUS_OK          = 0,
+      STATUS_TIMEOUT     = 1,
+      STATUS_OVERFLOW    = 2,
+    } Status_t;
 
     // Current State:
     State_t state;
     BTBeeSerial(uint8_t RxPin, uint8_t TxPin);
-
+    
     // BlueTooth control
     
     // TODO: these should reeturn status codes, not void
     
-    void btWorkingMode(WorkingMode_t mode);   // client==slave, server==master
-    void btBaudRate(BaudRate_t baudRate);     // baud rate to BT module
-    void btAutoConnect(Permit_t permitted);   // auto-reconnect last paired device on power
-    void btConnect(Permit_t permitted);       // allow paired device to connect to me
-    void btDeviceName(const char name[]);          // 
-    void btPinCode(const char code[]);             // must be 4 digit string
-    void btDeletePinCode(void);
-    void btLossReconnect(Permit_t permitted); // reconnect when master device is out of range   
-    void btInquire(Permit_t permitted);
-    void btReadLocalAddress(void);
+    Status_t btWorkingMode(WorkingMode_t mode);   // client==slave, server==master
+    Status_t btBaudRate(BaudRate_t baudRate);     // baud rate to BT module
+    Status_t btAutoConnect(Permit_t permitted);   // auto-reconnect last paired device on power
+    Status_t btConnect(Permit_t permitted);       // allow paired device to connect to me
+    Status_t btDeviceName(const char name[]);          // 
+    Status_t btPinCode(const char code[]);             // must be 4 digit string
+    Status_t btDeletePinCode(void);
+    Status_t btLossReconnect(Permit_t permitted); // reconnect when master device is out of range   
+    Status_t btInquire(Permit_t permitted);
+    Status_t btReadLocalAddress();
     
-    void btCommand(const char cmd[], unsigned int value);
-    void btCommand(const char cmd[], const char value[]);
-    void btCommand(const char cmd[]);
+    Status_t btCommand(const char cmd[], unsigned int value);
+    Status_t btCommand(const char cmd[], const char value[]);
+    Status_t btCommand(const char cmd[]);
+    Status_t btOkWait(unsigned long uTimeout=1000000);
+    Status_t btLineWait(char buf[], size_t bufsize, size_t *len);
 };
 
 #endif

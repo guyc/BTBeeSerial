@@ -6,9 +6,21 @@
 #define BT_TX 12
 BTBeeSerial btSerial(BT_RX, BT_TX);
 
+// IMPORTANT - must force disconnect or be able to detect state?
+// Pulling PIO0 high will disconnect current working Bluetooth device.
+// Status instruction port PIO1: low-disconnected, high-connected;
+
+// types of response from BT:
+// WORK:SLAVER
+// +BTSTATE:n
+// CONNECT:FAIL
+// CONNECT
+// OK
+// seems like it might echo original command?
+
 // reference doc: http://elmicro.com/files/seeedstudio/btbee-datasheet.pdf
 
-void btCommand(char command[])
+void xbtCommand(char command[])
 {
     char a;
     btSerial.print(command);
@@ -41,42 +53,31 @@ void btInit()
     delay(3000);
     
     btSerial.btBaudRate(BTBeeSerial::BAUD_38400);
-    //btCommand("\r\n+STBD=38400\r\n");      // set baud rate
-    btRead();
+    btSerial.btOkWait();
     
     btSerial.btWorkingMode(BTBeeSerial::MODE_SLAVE);
-    //btCommand("\r\n+STWMOD=0\r\n");       // set device working as a slave
-    btRead();
+    btSerial.btOkWait();
     
     btSerial.btDeviceName("Arduino");
-    btCommand("\r\n+STNA=arduino\r\n");   // set device name
-    btRead();
+    btSerial.btOkWait();
     
-    btSerial.btAutoConnect(BTBeeSerial::FORBIDDEN);
-    btCommand("\r\n+STAUTO=0\r\n");       // auto connect forbidden
-    btRead();
+    btSerial.btAutoConnect(BTBeeSerial::PERMITTED);
+    btSerial.btOkWait();
     
     btSerial.btConnect(BTBeeSerial::PERMITTED);
-    btCommand("\r\n+STOAUT=1\r\n");       // permit paired device connect
-    btRead();
+    btSerial.btOkWait();
     
     btSerial.btPinCode("0000");
-    btCommand("\r\n+STPIN=0000\r\n");     // set pincode
-    btRead();
+    btSerial.btOkWait();
     
     btSerial.btReadLocalAddress();
-    btRead();
+    btSerial.btOkWait();
     
-    delay(2000);                          // This delay is required.
     btSerial.btInquire(BTBeeSerial::PERMITTED);
     //btSerial.print("\r\n+INQ=1\r\n");     // set inquire mode
-    delay(2000);                          // This delay is required.
-    btRead();
+    btSerial.btOkWait();
     
     Serial.print("Setup complete");
-    //btSerial.Command("\r\n+RTADDR\r\n");         // read local address code
-    btSerial.btReadLocalAddress();
-    btRead();
 }
 
 
